@@ -578,7 +578,6 @@ static void xcb_check_cb(EV_P_ ev_check *w, int revents) {
 
         /* Strip off the highest bit (set if the event is generated) */
         int type = (event->response_type & 0x7F);
-
         switch (type) {
             case XCB_KEY_PRESS:
                 handle_key_press((xcb_key_press_event_t*)event);
