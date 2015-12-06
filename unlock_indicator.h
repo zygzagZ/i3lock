@@ -6,8 +6,9 @@ typedef enum {
     STATE_KEY_PRESSED = 1,      /* key was pressed, show unlock indicator */
     STATE_KEY_ACTIVE = 2,       /* a key was pressed recently, highlight part
                                    of the unlock indicator. */
-    STATE_BACKSPACE_ACTIVE = 3  /* backspace was pressed recently, highlight
+    STATE_BACKSPACE_ACTIVE = 3,  /* backspace was pressed recently, highlight
                                    part of the unlock indicator in red. */
+    STATE_BACKSPACE_NOT_ACTIVE = 4
 } unlock_state_t;
 
 typedef enum {
