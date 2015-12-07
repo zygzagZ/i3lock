@@ -28,7 +28,8 @@
 #define BUTTON_DIAMETER (2 * BUTTON_SPACE)
 #define TIME_FORMAT "%H:%M"
 // effectively its 2 times FRAMES per keypress animation
-#define ANIM_FRAMES 2
+#define ANIM_FRAMES 6
+// #define FILL_ANIM_FRAMES 4
 
 
 /*******************************************************************************
@@ -184,7 +185,7 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
 				break;
 			case 'f': /* Fill */
 				/* Use a lighter tint of the user defined color for circle fill */
-				cairo_set_source_rgba(cr, (255-colors[offset][0]) * 0.5 + colors[offset][0], (255-colors[offset][1])*0.5 + colors[offset][1], (255-colors[offset][2])*0.5 + colors[offset][2], 0.2);
+				cairo_set_source_rgba(cr, (255-colors[offset][0]) * 0.5 + colors[offset][0], (255-colors[offset][1])*0.5 + colors[offset][1], (255-colors[offset][2])*0.5 + colors[offset][2], 0.15);
 				break;
 		}
 	}
@@ -242,8 +243,29 @@ xcb_pixmap_t draw_image(uint32_t *resolution) {
 					break;
 			}
 		}
+		/*int latest_anim_time = FILL_ANIM_FRAMES*2;
 
-		set_pam_color('f', 1.0);
+		if (unlock_state == STATE_KEY_ACTIVE ||
+		 	unlock_state == STATE_BACKSPACE_ACTIVE) {
+		 	latest_anim_time = 0;
+		} else {
+			for (int anim = 0; anim < anim_id; anim++) {
+				if (anims[anim].time < latest_anim_time) {
+					latest_anim_time = anims[anim].time;
+				}
+			}
+		}*/
+		double f_opacity = 1.0;
+		/*if (latest_anim_time < FILL_ANIM_FRAMES*2) {
+			if (latest_anim_time <= FILL_ANIM_FRAMES) {
+				f_opacity = (double)latest_anim_time / (double)FILL_ANIM_FRAMES;
+			} else {
+				f_opacity = 1. - ((double)(latest_anim_time - FILL_ANIM_FRAMES) / (double)FILL_ANIM_FRAMES);
+			}
+			f_opacity = 1.-f_opacity;
+		}*/
+
+		set_pam_color('f', f_opacity);
 		cairo_fill_preserve(ctx);
 
 		/* Circle border */
@@ -396,7 +418,7 @@ void start_time_redraw_tick(struct ev_loop* main_loop) {
 void start_anim_redraw_tick(struct ev_loop* loop) {
 	if (!anim_redraw_tick_running) {
 		anim_redraw_tick_running = 1;
-		ev_timer_init(&anim_redraw_tick, time_redraw_cb, .0866, .0866); // its about 50 fps?
+		ev_timer_init(&anim_redraw_tick, time_redraw_cb, .0266, .0266); // its about 50 fps?
 		ev_timer_start(loop, &anim_redraw_tick);
 	}
 }
