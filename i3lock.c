@@ -89,7 +89,7 @@ bool tile = false;
 bool ignore_empty_password = false;
 bool skip_repeated_empty_password = false;
 
-bool blur = false;
+int blur = 0;
 
 /* isutf, u8_dec © 2005 Jeff Bezanson, public domain */
 #define isutf(c) (((c) & 0xC0) != 0x80)
@@ -725,14 +725,14 @@ int main(int argc, char *argv[]) {
         {"verify-color", required_argument, NULL, 'o'},
         {"wrong-color", required_argument, NULL, 'w'},
         {"idle-color", required_argument, NULL, 'l'},
-        {"blur", no_argument, NULL, 'g'},
+        {"blur", required_argument, NULL, 'g'},
         {NULL, no_argument, NULL, 0}
     };
 
     if ((username = getenv("USER")) == NULL)
         errx(EXIT_FAILURE, "USER environment variable not set, please set it.\n");
 
-    char *optstring = "hvnbgdc:o:w:l:p:ui:teI:f";
+    char *optstring = "hvnbdc:g:o:w:l:p:ui:teI:f";
     while ((o = getopt_long(argc, argv, optstring, longopts, &optind)) != -1) {
         switch (o) {
         case 'v':
@@ -793,9 +793,13 @@ int main(int argc, char *argv[]) {
         case 'f':
             show_failed_attempts = true;
             break;
-        case 'g':
-            blur = true;
+        case 'g': {
+        	int scanned_blur = 0;
+            if (sscanf(optarg, "%d", &scanned_blur) != 1 || scanned_blur < 0)
+                errx(EXIT_FAILURE, "invalid blur radius, it must be a positive integer\n");
+            blur = scanned_blur;
             break;
+        }
         default:
             errx(EXIT_FAILURE, "Syntax: i3lock [-v] [-n] [-b] [-d] [-c color] [-o color] [-w color] [-l color] [-u] [-p win|default]"
             " [-i image.png] [-t] [-e] [-I] [-f] [-g]"
@@ -904,7 +908,7 @@ int main(int argc, char *argv[]) {
     } 
 
     xcb_pixmap_t blur_pixmap;
-    if (blur) {
+    if (blur > 0) {
         if (!img) {
             xcb_visualtype_t *vistype = get_root_visual_type(screen);
             /* Capture the current screen contents into an XCB surface buffer */
@@ -924,8 +928,7 @@ int main(int argc, char *argv[]) {
             cairo_surface_destroy(xcb_img);
         }
 
-        blur_image_surface(img, 10000);
-        //stack_blur_image_surface(img, 20);
+        blur_image_surface(img, blur);
     }
 
     /* Pixmap on which the image is rendered to (if any) */
