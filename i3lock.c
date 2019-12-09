@@ -908,7 +908,7 @@ int main(int argc, char *argv[]) {
     } 
 
     xcb_pixmap_t blur_pixmap;
-    if (blur > 0) {
+    if (blur >= 0) {
         if (!img) {
             xcb_visualtype_t *vistype = get_root_visual_type(screen);
             /* Capture the current screen contents into an XCB surface buffer */
@@ -927,8 +927,8 @@ int main(int argc, char *argv[]) {
             cairo_destroy(ctx);
             cairo_surface_destroy(xcb_img);
         }
-
-        blur_image_surface(img, blur);
+        if (blur > 0)
+ 	    	blur_image_surface(img, blur);
     }
 
     /* Pixmap on which the image is rendered to (if any) */

@@ -64,7 +64,7 @@ void boxBlurH_4 (uint8_t *scl, uint8_t *tcl, int w, int h, int r, int off) {
 			li = ti, 
 			ri = ti+r;
 
-		long double fv = scl[ti*4+off],
+		double fv = scl[ti*4+off],
 			lv = scl[(ti+w-1)*4+off],
 			val = (r+1)*(fv);
 
@@ -105,7 +105,7 @@ void boxBlurT_4 (uint8_t *scl, uint8_t *tcl, int w, int h, int r, int off) {
 			li = ti, 
 			ri = ti+r*w;
 
-		long double fv = scl[ti*4+off],
+		double fv = scl[ti*4+off],
 			lv = scl[(ti+w*(h-1))*4+off],
 			val = (r+1)*(fv);
 
@@ -130,7 +130,7 @@ void boxBlurT_4 (uint8_t *scl, uint8_t *tcl, int w, int h, int r, int off) {
 	}
 }
 void boxBlur_4 (uint8_t *scl, uint8_t *tcl, int w, int h, int r, char off) {
-	memcpy(tcl, scl, h*w*4);
+	// memcpy(tcl, scl, h*w*4);
 	// for(int i=0; i<h*w*4; i++)
 	// 	tcl[i] = scl[i];
 	boxBlurH_4(scl, tcl, w, h, r, off);
@@ -138,11 +138,13 @@ void boxBlur_4 (uint8_t *scl, uint8_t *tcl, int w, int h, int r, char off) {
 	// memcpy(scl, tcl, h*w*4);
 }
 void gaussBlur_4 (uint8_t *scl, uint8_t *tcl, int w, int h, int r) {
-	uint32_t* bxs = boxesForGauss(r, 3);
+	uint32_t* bxs = boxesForGauss(r, 4);
 	for (char off = 0; off < 3; off++) {
-		boxBlur_4 (scl, tcl, w, h, (bxs[0]-1)/2, off);
-		boxBlur_4 (scl, tcl, w, h, (bxs[1]-1)/2, off);
-		boxBlur_4 (scl, tcl, w, h, (bxs[2]-1)/2, off);
+		boxBlur_4 (scl, tcl, w, h, (bxs[0]-1)/3, off);
+		boxBlur_4 (scl, tcl, w, h, (bxs[1]-1)/3, off);
+		boxBlur_4 (scl, tcl, w, h, (bxs[2]-1)/3, off);
+		boxBlur_4 (scl, tcl, w, h, (bxs[3]-1)/3, off);
+		// boxBlur_4 (scl, tcl, w, h, (bxs[4]-1)/2, off);
 	}
 	free(bxs);
 }
